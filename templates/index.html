@@ -19,6 +19,16 @@
       color: #333;
     }
 
+    .stats-card {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      text-align: center;
+      padding: 20px;
+      margin: 20px;
+    }
+
     .game-container {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -63,24 +73,11 @@
       transform: translateY(-5px);
     }
 
-    .summary-card {
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      margin-bottom: 20px;
+    .no-games {
       text-align: center;
-      width: 100%;
-    }
-
-    .summary-card h3 {
-      font-size: 1.5em;
-      color: #333;
-    }
-
-    .summary-card p {
       font-size: 1.2em;
-      color: #555;
+      color: #888;
+      padding: 50px;
     }
 
     /* Mobile-friendly Design */
@@ -103,12 +100,12 @@
 </head>
 <body>
 
-  <h1>My Steam Games</h1>
-  
-  <!-- Summary Card -->
-  <div class="summary-card">
-    <h3>Total Playtime: {{printf "%.2f" .totalPlaytime}} hours</h3>
-    <p>Total Games Played: {{.totalGames}}</p>
+  <h1>Your Steam Games</h1>
+
+  <!-- Stats Card -->
+  <div class="stats-card">
+    <h2>Total Playtime: {{.totalPlaytime}} hours</h2>
+    <h2>Total Games Played: {{.totalGames}}</h2>
   </div>
 
   <div class="game-container">
@@ -129,5 +126,6 @@
 
 </body>
 </html>
+
 
 

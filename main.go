@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
+	"github.com/joho/godotenv"
 )
 
 // SteamGame represents a single game's data
@@ -19,7 +20,7 @@ type SteamGame struct {
 }
 
 // FetchSteamData fetches the user's games from the Steam API
-func FetchSteamData(apiKey, steamID string) ([]SteamGame, float64, int, error) {
+func FetchSteamData(apiKey, steamID string) ([]SteamGame, error) {
 	url := fmt.Sprintf("https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=%s&steamid=%s&format=json&include_appinfo=true", apiKey, steamID)
 	client := resty.New()
 
@@ -38,32 +39,34 @@ func FetchSteamData(apiKey, steamID string) ([]SteamGame, float64, int, error) {
 	_, err := client.R().SetResult(&response).Get(url)
 	if err != nil {
 		log.Printf("Error fetching Steam data: %v", err)
-		return nil, 0, 0, err
+		return nil, err
 	}
 
-	// Process the games and calculate total playtime and total number of games
+	// Process the games and return them
 	var games []SteamGame
-	var totalPlaytime float64
 	for _, game := range response.Response.Games {
-		// Convert minutes to hours
-		playtimeInHours := float64(game.Playtime) / 60
 		games = append(games, SteamGame{
 			Name:     game.Name,
-			Playtime: playtimeInHours,
+			Playtime: float64(game.Playtime) / 60, // Convert minutes to hours
 			IconURL:  fmt.Sprintf("https://media.steampowered.com/steamcommunity/public/images/apps/%d/%s.jpg", game.AppID, game.ImgIconURL),
 		})
-		totalPlaytime += playtimeInHours
 	}
 
-	// Sort games by playtime (largest to smallest)
+	// Sort games by playtime in descending order
 	sort.Slice(games, func(i, j int) bool {
 		return games[i].Playtime > games[j].Playtime
 	})
 
-	return games, totalPlaytime, len(games), nil
+	return games, nil
 }
 
 func main() {
+	// Load environment variables from .env file
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	// Get API Key and Steam ID from environment variables
 	apiKey := os.Getenv("STEAM_API_KEY")
 	steamID := os.Getenv("STEAM_ID")
@@ -85,7 +88,7 @@ func main() {
 	// Define the route to fetch and display game data
 	r.GET("/", func(c *gin.Context) {
 		// Fetch games data from Steam API
-		games, totalPlaytime, totalGames, err := FetchSteamData(apiKey, steamID)
+		games, err := FetchSteamData(apiKey, steamID)
 		if err != nil {
 			// Handle error with a JSON response
 			log.Printf("Error: %v", err)
@@ -93,11 +96,17 @@ func main() {
 			return
 		}
 
-		// Render the games page with the fetched data
+		// Calculate total playtime and total number of games
+		var totalPlaytime float64
+		for _, game := range games {
+			totalPlaytime += game.Playtime
+		}
+
+		// Prepare data to pass to the template
 		c.HTML(http.StatusOK, "index.html", gin.H{
 			"games":         games,
-			"totalPlaytime": totalPlaytime,
-			"totalGames":    totalGames,
+			"totalPlaytime": fmt.Sprintf("%.2f", totalPlaytime),
+			"totalGames":    len(games),
 		})
 	})
 
