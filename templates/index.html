@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Steam Games</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 2em;
+      color: #333;
+    }
+
+    .game-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 20px;
+      justify-items: center;
+    }
+
+    .game-card {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      width: 200px;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+
+    .game-card img {
+      width: 100%;
+      max-height: 50px; /* Set a max height to maintain aspect ratio */
+      object-fit: contain; /* Ensures the image is scaled without distortion */
+      margin: 0 auto;
+    }
+
+    .game-card .game-info {
+      padding: 10px;
+    }
+
+    .game-card .game-info h3 {
+      font-size: 1.1em;
+      color: #333;
+      margin: 10px 0;
+    }
+
+    .game-card .game-info p {
+      color: #777;
+      font-size: 0.9em;
+    }
+
+    .game-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .summary-card {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .summary-card h3 {
+      font-size: 1.5em;
+      color: #333;
+    }
+
+    .summary-card p {
+      font-size: 1.2em;
+      color: #555;
+    }
+
+    /* Mobile-friendly Design */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5em;
+      }
+
+      .game-card {
+        width: 90%;
+        margin: 0 auto;
+      }
+
+      .game-container {
+        grid-template-columns: 1fr; /* Single column on small screens */
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>My Steam Games</h1>
+  
+  <!-- Summary Card -->
+  <div class="summary-card">
+    <h3>Total Playtime: {{printf "%.2f" .totalPlaytime}} hours</h3>
+    <p>Total Games Played: {{.totalGames}}</p>
+  </div>
+
+  <div class="game-container">
+    {{range .games}}
+      <div class="game-card">
+        <img src="{{.IconURL}}" alt="{{.Name}}">
+        <div class="game-info">
+          <h3>{{.Name}}</h3>
+          <p>Playtime: {{printf "%.2f" .Playtime}} hours</p>
+        </div>
+      </div>
+    {{else}}
+      <div class="no-games">
+        <p>No games found.</p>
+      </div>
+    {{end}}
+  </div>
+
+</body>
+</html>
+
+
